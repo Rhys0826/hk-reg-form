@@ -166,10 +166,10 @@ function renderPeople(){
 document.getElementById('addPerson').onclick=()=>{people.push({id:uid(),position:'董事',name:'',share:'100%'});renderPeople()};
 
 /* ===== 身份证件 ===== */
-const SLOTS=[{k:'front',label:'身份证正面'},{k:'back',label:'身份证反面'},{k:'hold',label:'手持身份证照片'}];
+const SLOTS=[{k:'front',label:'身份证正面'},{k:'back',label:'身份证反面'},{k:'hold',label:'手持身份证照片'},{k:'passport',label:'护照'}];
 function renderCerts(){
   const box=document.getElementById('certs');
-  if(!certs.length)certs.push({id:uid(),name:'',front:null,back:null,hold:null});
+  if(!certs.length)certs.push({id:uid(),name:'',front:null,back:null,hold:null,passport:null});
   box.innerHTML=certs.map((p,i)=>
     '<div class="crow"><div class="cname"><span class="idx">'+(i+1)+'</span>'+
     '<input type="text" placeholder="人员姓名" value="'+esc(p.name)+'" data-i="'+i+'">'+
@@ -199,7 +199,7 @@ function pickImg(inp){
   };
   r.readAsDataURL(f);
 }
-document.getElementById('addCert').onclick=()=>{certs.push({id:uid(),name:'',front:null,back:null,hold:null});renderCerts()};
+document.getElementById('addCert').onclick=()=>{certs.push({id:uid(),name:'',front:null,back:null,hold:null,passport:null});renderCerts()};
 
 /* ===== 风险提示 ===== */
 function checkNameRisk(){
@@ -255,7 +255,7 @@ document.getElementById('saveBtn').onclick=async()=>{
         cnName:cnName?toTrad(cnName):'',enName:enName?toTrad(enName):'',scope:toTrad(scope),capital:capital,
         people:people.map(p=>({position:p.position,name:toTrad(p.name),share:p.share}))
       },
-      certs:certs.map(p=>({name:toTrad(p.name),front:pick(p.front),back:pick(p.back),hold:pick(p.hold)}))
+      certs:certs.map(p=>({name:toTrad(p.name),front:pick(p.front),back:pick(p.back),hold:pick(p.hold),passport:pick(p.passport)}))
     };
     const base=((cnName||enName||'香港公司')+'公司注册资料').replace(/[\\/:*?"<>|]/g,'_');
     /* 关键：buildDocx 返回 Blob，必须转为 Uint8Array 再交给 zipPack，否则压缩包内 Word 为 0 字节 */
