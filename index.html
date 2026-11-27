@@ -27,6 +27,9 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--teal);bo
 .btn-sm{padding:6px 10px;font-size:12px}
 .warnbox{background:#fff1f0;border:2px solid var(--danger);color:var(--danger);border-radius:8px;padding:10px 12px;font-size:13px;margin:8px 0;font-weight:bold}
 .counter{text-align:right;font-size:12px;color:var(--sub);margin-top:3px}
+.cap-row{display:flex;gap:8px;align-items:center}
+.cap-row input{flex:1}
+.cap-unit{background:var(--teal-l);color:var(--teal-d);border-radius:8px;padding:10px 12px;font-size:13px;font-weight:bold;white-space:nowrap}
 .counter.over{color:var(--danger);font-weight:bold}
 .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0;padding:8px;background:#f8fafb;border-radius:8px}
 .row input,.row select{flex:1 1 110px;min-width:100px;font-size:13px;padding:8px}
@@ -66,12 +69,19 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--teal);bo
     <input type="text" id="enName" placeholder="请输入公司英文名称" data-page-node-id="q9b526YQvdDHeaRWBGYdjj">
     <p class="muted" data-page-node-id="EkFub4KGspdMdtGjCbXobU">可只填中文、只填英文，或两者都填。</p>
 
-    <label data-page-node-id="pBeKp2XdYKqCSxHDAZOk51">经营范围 <span style="color:var(--danger)" data-page-node-id="iXNZqUERkytqsXVgzwOk2c">*</span></label>
+    <label>经营范围 <span style="color:var(--danger)">*</span></label>
     <textarea id="scope" placeholder="请输入经营范围"></textarea>
-    <div class="counter" id="scopeCount" data-page-node-id="x2Ja8JPGEnDKDrnfSeLaCt">0 / 30</div>
-    <div id="scopeRisk" data-page-node-id="GhjU5wqXpIq88EA99stKNC"></div>
+    <div class="counter" id="scopeCount">0 / 30</div>
+    <p class="muted">含标点符号30字以内</p>
+    <div id="scopeRisk"></div>
 
-    <h2 style="margin-top:18px" data-page-node-id="Eyi7jqYHARDhcvFQITgPc5">职位担任与股份比例</h2>
+    <label>注册资本（认缴）</label>
+    <div class="cap-row">
+      <input type="text" id="capital" value="10000" inputmode="numeric" placeholder="请输入注册资本">
+      <span class="cap-unit">HKD</span>
+    </div>
+
+    <h2 style="margin-top:18px">职位担任与股份比例</h2>
     <div id="people" data-page-node-id="qUvCvCFXepptxUxh8SWM2t"></div>
     <button class="btn btn-g btn-sm" id="addPerson" data-page-node-id="tmDxvNkCFlSJpgmw4LwbTy">+ 新增人员</button>
   </div>
@@ -219,6 +229,7 @@ document.getElementById('clearBtn').onclick=()=>{
   if(!confirm('确定清除全部已填信息吗？'))return;
   people=[];certs=[];
   ['cnName','enName','scope'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('capital').value='10000';
   document.getElementById('scopeCount').textContent='0 / 30';
   document.getElementById('scopeCount').className='counter';
   checkNameRisk();checkScopeRisk();renderPeople();renderCerts();
@@ -230,6 +241,7 @@ document.getElementById('saveBtn').onclick=async()=>{
   const cnName=document.getElementById('cnName').value.trim();
   const enName=document.getElementById('enName').value.trim();
   const scope=document.getElementById('scope').value.trim();
+  const capital=document.getElementById('capital').value.trim()||'10000';
   if(!cnName&&!enName){alert('公司中文名称或英文名称至少填写一项');return}
   const n=[...scope].length;
   if(n>30){alert('经营范围超过30字（当前'+n+'字），请修改后再保存');return}
@@ -240,7 +252,7 @@ document.getElementById('saveBtn').onclick=async()=>{
     const data={
       title:'香港公司注册资料',savedAt:new Date().toISOString(),
       company:{
-        cnName:cnName?toTrad(cnName):'',enName:enName?toTrad(enName):'',scope:toTrad(scope),
+        cnName:cnName?toTrad(cnName):'',enName:enName?toTrad(enName):'',scope:toTrad(scope),capital:capital,
         people:people.map(p=>({position:p.position,name:toTrad(p.name),share:p.share}))
       },
       certs:certs.map(p=>({name:toTrad(p.name),front:pick(p.front),back:pick(p.back),hold:pick(p.hold)}))
@@ -275,6 +287,7 @@ function buildDocx(d){
   body+=para('公司中文名称：'+(c.cnName||''));
   body+=para('公司英文名称：'+(c.enName||''));
   body+=para('经营范围：'+(c.scope||''));
+  body+=para('注册资本（认缴）：'+(c.capital||'10000')+' HKD');
   body+=para('');
   body+=para('二、职位担任与股份比例',true);
   const ppl=c.people||[];
